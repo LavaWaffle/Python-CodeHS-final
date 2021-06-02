@@ -135,14 +135,15 @@ class Room:
 				return 
 
 		self.move_player(player, DeltaX, DeltaY) #move ai using the given deltaX and deltaY
-
+#creats 3 objects with the varaibles shown above (b4 room class)
 char = Protagonist()
 cam = Camel()
 nat = Natives()
 #clears the screen on repl, but doesn't work on code hs D:
 def clear():
-    os.system( 'clear' )
-
+    pass
+    #os.system( 'clear' )
+#creates the big 2d list used when the player or natives move
 def room_create(player, w, h):
     #looks at user pos
     if player == "<=>":
@@ -159,8 +160,9 @@ def room_create(player, w, h):
         elif len(str(i)) == 3:
             increments.append(str(i))
     
-    #needs space for increments
+    #needs space for increments that show light years traveled
     h = h + 2
+    #makes an object with the desired width and height
     test = Room(w,h)
     
     #adds the increments, 1 at a time
@@ -173,9 +175,10 @@ def room_create(player, w, h):
     return test
     
 def move_player(int1, int2):
+    #creats a room with the desired width, height and player
     rm = (room_create("<=>", 21, 7))
     rand = (r.randint(int1, int2))
-    
+    #tells player its their turn at the top left of the move section/menu
     rm.add_player(" Y ",(2, 0)) 
     rm.add_player(" O ",(2, 1))
     rm.add_player(" U ",(2, 2))
@@ -186,8 +189,8 @@ def move_player(int1, int2):
     rm.add_player(" R ",(2, 7))
     rm.add_player(" N ",(2, 8))
     
-    #generates other objects
-    #decides the number of them
+    #generates planets randomely
+    #chooses spawn locations randomely as well
     ais = r.randint(1, 3)  
     if ais >= 1:
         y1 = r.randint(1,2)
@@ -205,6 +208,7 @@ def move_player(int1, int2):
         else:
             y2 = 3
         x2 = r.randint(12,20)
+        #makes sure this planet does not spawn on top of another
         if x2 != x1:
             rm.add_player("! !", (y2, x2), 0)
         else:
@@ -218,19 +222,22 @@ def move_player(int1, int2):
         else:
             y3 = 8
         x3 = r.randint(10, 20)
-        
+        #makes sure this planet doesnt spawn on top of another
         if x3 != x2 and x3 != x1:
             rm.add_player(" ! ", (y3, x3), 0)
         else:
             while x3 == x2 or x3 == x1:
                 x3 = x3 - 1
             rm.add_player(" ! ", (y3, x3), 0)
-            
+    #explains to the user how to play        
     print("As you fly your ship, you may land on planets or !!!'s and get items. \nWhen you land at a planet you stay their for the day!")
+    print("Your ship is the '<=>' image found on the left of the screen")
     t.sleep(1)
     user_error = ""
     stuff = ""
+    #rand > 0 because rand is amount of spaces player can move
     while rand > 0:
+        #prints the 2d list the user is in
         print(rm, end = "")
         if user_error != "":
             print(user_error)
@@ -239,15 +246,15 @@ def move_player(int1, int2):
                 print(stuff)
         except:
             pass
-        print(char.pos)
+        #prints how many times the player can move
         user_input = input("You can move " + str(rand) + " (more) times. Enter 'w', 'a','s' or 'd' to move! ")
         
-        if user_input.lower() == "d": #moves player "forward"
+        if user_input.lower() == "d": #moves player "forward" and adds one light year
             stuff = rm.move_player("<=>", 1, 0)
             char.pos = char.pos + 1
-        elif user_input.lower() == "a": #moves player "backward"
+        elif user_input.lower() == "a": #moves player "backward" and subtracts one light year
             stuff = rm.move_player("<=>", -1, 0)
-            if stuff == "":
+            if stuff == "":#prevents an error
                 char.pos = char.pos - 1
         elif user_input.lower() == "w": #moves player up
             stuff =  rm.move_player("<=>", 0, -1)
@@ -256,7 +263,7 @@ def move_player(int1, int2):
         else: #if they put a invalid direction dont use a move
             user_error = "Error: Invalid direction"
             continue
-        
+        #checks if player is going to a planet
         try:
             if stuff != "" and stuff[-1] not in ["!!!", "! !", " ! "]: #if player runs into a wall dont use a move
                 stuff = "Error: You can't move to their D:!"
@@ -265,10 +272,11 @@ def move_player(int1, int2):
                 return game()
         except:
             pass
-        
+        #if user is not going to a planet and no errors have occured, set the error = nothing and get rid of one move
         user_error = ""
         rand = rand - 1
-        clear()
+        #clear()
+        #tries moving the planets, and if an error occurs because they doesn't exist nothing happens
         try:
             rm.ai_path("!!!", (8, x1), (2, x1))
             rm.ai_path("! !", (8, x2), (2, x2))
@@ -277,12 +285,14 @@ def move_player(int1, int2):
             pass
  
     print(rm)
-    print(char.pos)
+    #print(char.pos)
+    t.sleep(1/2)
+    user = input("After you move its the natives turn to move! Click the enter key to continue! ")
     return ""
         
 def move_natives():
     rm = (room_create("nav", 21, 7))
-    rand = (r.randint(7, 14))
+    rand = (r.randint(7, 13))
     rm.add_player("NAT",(2, 0)) 
     rm.add_player("IVE",(2, 1))
     rm.add_player("S  ",(2, 2))
@@ -313,10 +323,10 @@ def natives_ahead_check():
         return False
 
 def game():
-    rand = r.randint(1,3)
+    rand = r.randint(1,4)
     if rand == 1:
         print("On the planet their is a unstable powerscource, that could \nfly you an extra 10 miles forward, or backwords. \nDo you want to use it?('Y'/'N')")
-        print(char.pos)
+        print("Current Pos: {}".format(char.pos))
         while True:
             user = input("")
             if user.lower() not in ("y", "n", "yes", "no"):
@@ -325,12 +335,14 @@ def game():
             elif user.lower() in ('y', 'yes'):
                 dist = r.randint(1,2)
                 if dist == 1:
-                    print("You put the unstable powerscource on your ship and flew 10 miles forward!")
+                    print("You put the unstable powerscource on your ship and flew 10 light years forward!")
                     char.pos = char.pos + 10
+                    user = input("Click the enter key to continue! ")
                     break
                 else:
-                    print("You put the unstable powerscource on your ship and were forced 10 miles backwards D:")
+                    print("You put the unstable powerscource on your ship and were forced 10 light years backwards D:")
                     char.pos = char.pos - 10
+                    user = input("Click the enter key to continue! ")
                     break
             elif user.lower() in ('n', 'no'):
                 print("You decided not to move and rested for the rest of the day")
@@ -355,28 +367,39 @@ def game():
                     print("Heads!!")
                     print("The alien gave you 2 water bottle and you rested for the rest of the day")
                     char.canteens = char.canteens + 2
+                    user = input("Click the enter key to continue! ")
                     break
                 else:
                     print("Tails D:")
                     print("You gave the alien 2 water bottles and rested for the rest of the day")
-                    char.canteens = char.canteens - 2   
+                    char.canteens = char.canteens - 2
+                    user = input("Click the enter key to continue! ")   
                     break
             
             elif user.lower() in ('n','no'):
                 print("You decided not to trade with the alien and rested for the rest of the day!")
+                user = input("Click the enter key to continue! ")
                 break
         t.sleep(2)
             
     if rand == 3:
-        print("On the island you landed on their was a Alien who would only let you stay\nthere if you could beat them at tic tac toe!")
+        print("On the planet you landed on their was a Alien who would only let you stay\nthere if you could beat them at tic tac toe!")
         if tic_tac_toe():
             print("You beat the Alien's challenge and rested for the rest of the day!")
             t.sleep(2)
+            user = input("Click the enter key to continue! ")
         else:
-            print("You didn't beat the Alien's challenge and were forced to move back 5 miles D:")
+            print("You didn't beat the Alien's challenge and were forced to move back 5 light years D:")
             char.pos = char.pos - 5
             t.sleep(2)
+            user = input("Click the enter key to continue! ")
             return natives_ahead_check()
+		
+    if rand == 4:
+      print("You found a canteen, and a stash of supplies on the planet which you used to quench your thirst and cool down your spaceship for the day!")
+      char.thirst = 0
+      cam.tired = 0
+      user = input("Click the enter key to continue! ")
             
 def tic_tac_toe():
     board = [
@@ -435,9 +458,11 @@ def tic_tac_toe():
             continue
     if str(user) in answer:
         print("Correct!")
+        user = input("Click the enter key to continue! ")
         return True
     else:
         print(reasoning)
+        user = input("Click the enter key to continue! ")
         return False
 
 def canteen_game():
@@ -504,19 +529,20 @@ def canteen_game():
         if word_2.replace(" ","") == check:
             print(check)
             print("You opened the canteen!")
+            user = input("Click the enter key to continue! ")
             return True
         
-    
+    user = input("Click the enter key to continue! ")
     return False
 
 def camel_game():
-    print("You find some extra parts that can be used to repair your ship, but they have \na lock on them that will not let you use them.\n")
-    print("These trivia questions are def not plagirused from \nhttps://www.scarymommy.com/best-trivia-questions-answers/ \n:sweat_smile: *I don't know what ur talking about*")
+    print("You find some extra parts that can be used to repair your ship, but they have \na lock on them that requires you to solve a trivia question?\n")
+    #print("These trivia questions are def not plagirused from \nhttps://www.scarymommy.com/best-trivia-questions-answers/ \n:sweat_smile: *I don't know what ur talking about*")
     questions ={
-        "white" : "who starts first in chess?: ",
-        "pacific" : "name the world’s largest ocean: ",
-        "49" : "how many rides does Disney world have according to google on 5/27/2021?: ",
-        "13.8" : "rounded to the nearest tenth how old is the universe according to google on 5/27/2021?: ",
+        ("white", "black") : "Who starts first in chess? ('white' or 'black'): ",
+        ("pacific", "atlantic", "indian") : "What is the world’s largest ocean? ('atlantic', 'indian', 'pacific'): ",
+        ("3", "2", "1") : "Which of Newton’s Laws states that ‘for every action, there is an equal and opposite reaction? ('1', '2', '3'): ",
+        ("solids", "liquids", "gases") : "In what type of matter are atoms most tightly packed? ('solids', 'liquids', or 'gases'): ",
     }  
     questions = list(questions.items())
     questions = r.choice(questions)
@@ -526,36 +552,44 @@ def camel_game():
         except:
             print("Enter a string pls\n")
             continue
-        if user.lower() == questions[0]:
+        if (user.lower()).strip() not in questions[0]:
+            print("Invalid input: Enter a valid answer pls! \n")
+            continue
+        if (user.lower()).strip() == questions[0][0].lower():
             print("Correct!")
+            user = input("Click the enter key to continue! ")
             return True
         else:
-            print("Incorrect, the correct answer was {}".format(questions[0]))
+            print("Incorrect, the correct answer was {}".format(questions[0][0]))
+            user = input("Click the enter key to continue! ")
             return False
     
 
+
 done = False
 days = 0
-error = ""
 #main func
-print("After stealing the legendary golden nugget from a planet \nfar away from your home town, you are on the run from the natives of that island.\n")
+print("After stealing the legendary golden nugget from a planet \nfar away from your home town, you are on the run from the natives of that planet.\nThe natives did who are after you did not bring much fuel,\nso if you can get 200 light years ahead of them you can escape scott free!\n")
+
 while not done:
-    if error != "":
-        print(error + "\n")
- 
     print("Day {}".format(str(days)))
-    print("Would you like to... \n○ A: Full speed ahead\n○ B: Normal speed\n○ C: rest\n○ D: drink\n○ E: status\n○ X: exit")
+    print("Would you like to... \n○ A: Full speed ahead\n○ B: Normal speed\n○ C: Rest\n○ D: Drink\n○ E: Status\n○ X: Exit")
     user = input("")
-    
-    if user.lower() not in ('rest', 'drink', 'full speed ahead', 'normal speed','status', 'x', 'a', 'b', 'c', 'd','e'):
-        error = ("Invalid input")
+    #i forgot was strip was, and im too lazy to change it (removes spaces)
+    user = user.replace(" ", "")
+    #to prevent confusing the user with invalid inputs when they didnt input anything
+    if user.lower() == "":
+        continue
+    if user.lower() not in ('rest', 'drink', 'fullspeedahead', 'normalspeed','status', 'x', 'a', 'b', 'c', 'd','e'):
+        print("Invalid input")
         continue
     
     if user.lower() == "x":
         done = True
         print("Exited the game!")
+    
         
-    elif user.lower() == "full speed ahead" or user.lower() == "a":
+    elif user.lower() == "fullspeedahead" or user.lower() == "a":
         move_player(10, 20)
         if natives_ahead_check():
             done = True
@@ -568,7 +602,7 @@ while not done:
         cam.tired = cam.tired + (r.randint(1,3))
         
     
-    elif user.lower() == "normal speed" or user.lower() == "b":
+    elif user.lower() == "normalspeed" or user.lower() == "b":
         move_player(5,12)
         if natives_ahead_check():
             done = True
@@ -583,7 +617,7 @@ while not done:
         
     #sets cam tired to 0
     elif user.lower() == "rest" or user.lower() == "c":
-        print("You and your camel rested for the day. You both feel refreshed!")
+        print("You rested for the day, and your ship cooled down!")
         cam.tired = 0
         t.sleep(3)
         done = move_natives()
@@ -591,20 +625,21 @@ while not done:
     #sets char thirst to 0 if u canteens are availible, else you play a minigame for more
     elif user.lower() == "drink" or user.lower() == "d":
         if char.canteens > 0:
-            print("You and your camel drank water for the day. Your thirsts are quenched!")
+            print("You drank water, and quenched your thirst!")
             char.thirst = 0  
             char.canteens = char.canteens - 1
         elif char.canteens == 0:
             if canteen_game():
-                print("You were out of canteens, but you beat the minigame and were rewarded with 3 more! \nYou and your camel drank water for the day. Your thirsts are quenched!")
+                print("You drank water, and quenched your thirst!")
                 char.thirst = 0 
-                char.canteens = 2 #it says 3, but you drink one automatically so you only get 4
+                char.canteens = 2 #it says 3, but you drink one automatically so you only get 2
             else:
                 print("You were out of canteens, but you lost the minigame and were not rewared with any more canteens D:")
                 char.thirst = char.thirst + 1
         t.sleep(3)
-        done = move_natives()
-        
+        #done = move_natives()
+        continue
+    
     elif user.lower() == "status" or user.lower() == "e":
         print("====== \nPos: {} \nNatives pos: {} \n\nCanteens: {} \n\nDistance from natives: {} \n======".format((str(char.pos)), (str(nat.pos)), (str(char.canteens)), str(char.pos - nat.pos)))
         t.sleep(1)
@@ -619,8 +654,12 @@ while not done:
     if done == False and cam.tired >= 5 and cam.tired <= 8:
         print("Your ship is over heating, type 'c' to rest!")
     elif done == False and cam.tired > 8:
-        done = camel_game()
-        
+        if camel_game():
+          print("You mananged to save your ship, and your life as well by solving the puzzle!")
+        else:
+          print("You didn't solve the puzzle and lost D:")
+          done = True
+          break
     if natives_ahead_check() and done == False:
         done = True
         print("the natives caught up!")
